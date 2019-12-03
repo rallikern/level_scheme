@@ -6,4 +6,4 @@ README.py produces a very simple Level scheme and example a more complicated cas
 The level scheme itself is produced in lvl_plotter.py.
 There you can also change some settings.
 
-The Energy of the gamma rays is not displayed, yet.
+The energy of the gamma rays is not displayed, yet.
