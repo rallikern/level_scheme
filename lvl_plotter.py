@@ -1,4 +1,5 @@
 import numpy as np
+import weakref
 from numpy import random
 import matplotlib.pyplot as plt
 import matplotlib
@@ -10,11 +11,18 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 class level(object):
     energies = []
     
-    try:
+    try:    
         max_en = max(energies)
     except:
         print('')
         
+        
+    _instances = set()
+
+    
+        
+
+     
     def __init__(self, energy, spin, parity, number):
         self.energies.append(energy)
         self.en = energy
@@ -23,10 +31,24 @@ class level(object):
         self.num = np.abs(number)
         self.sig = np.sign(number)
         self.decay = []
-        
+        self._instances.add(weakref.ref(self))
+
     def add_decay(self,t_en,t_int):
         if t_en not in [self.decay[l][0] for l in range(len(self.decay))]:
             self.decay.append([t_en,t_int])
+      
+    @classmethod
+    def getinstances(cls):
+        dead = set()
+        for ref in cls._instances:
+            obj = ref()
+            if obj is not None:
+                yield obj
+            else:
+                dead.add(ref)
+        cls._instances -= dead    
+           
+
 
             
             
@@ -340,7 +362,7 @@ def lvl_scheme(lvl_list,onoff,arrow_angle,transition_space,fontsize,lvl_width,lv
             shifty = xdata[1]+0.1*lvl_width
         #If the the spin is unknown, the parity is probably also unknown
         try:
-            if 'eV' in i.spin: pari = ''
+        	if 'eV' in i.spin: pari = ''
         except:
             pari = '^'+parity(i.par)
         
