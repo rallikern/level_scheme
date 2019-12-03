@@ -60,15 +60,19 @@ def plotter(lvl_list,onoff,name,onoff_pic,onoff_tick,fontsize):
     #change the parameter like you want
     ##################
     
-    arrow_angle = 0.0002
-    lvl_width = 1
-    transition_space = 0.5 *lvl_width
-    fontsize = fontsize
-    lvl_space = .75*lvl_width
-    lvl_short = 0.0
-    tran_width = 20
-    dist_2_axis = lvl_space
-    figsize = (9,4)
+    arrow_angle = 0.0002					#angle of the transitions
+    lvl_width = 1							#width of a level
+    transition_space = 0.5 *lvl_width		#default space between decays from one level
+    fontsize = fontsize						#Fontsize
+    lvl_space = .75*lvl_width				#space between levels
+    lvl_short = 0.0							#
+    tran_width = 20							#width of the transitions
+    dist_2_axis = lvl_space + lvl_width		#space between level of the western most and the y-axis 
+    ylim_up = 100							#In addition with the highest energy = upper limit of the yaxis
+    ylim_down= -150 						#lower limit of the yaxis
+    figsize = (9,4)							#absolute size of the plot
+    shrink_factor = 25						#shrinks the arrow, so there is no overlap between the starting and ending point and the levels
+    
     
     ######################################
     #Plot statrts
@@ -76,9 +80,9 @@ def plotter(lvl_list,onoff,name,onoff_pic,onoff_tick,fontsize):
         
     fig,ax = plt.subplots(figsize=figsize)
     parameter = [arrow_angle,transition_space,fontsize,lvl_width,lvl_space,lvl_short,tran_width]
-    tranni = trans(lvl_list,onoff,*parameter,fig,ax)
+    tranni = trans(lvl_list,onoff,*parameter,fig,ax,shrink_factor)
     maxi = lvl_scheme(lvl_list,onoff,*parameter,*tranni)
-    maxi[4].set_ylim(-150,maxi[2]+100)
+    maxi[4].set_ylim(ylim_down,maxi[2]+ylim_up)
     maxi[4].set_xlim(maxi[0]-dist_2_axis,maxi[1]+dist_2_axis)
     #maxi[4].plot([maxi[0]-0.75,maxi[0]-.75], [-150, maxi[2]+100], color='k', linestyle='-', linewidth=1)
     
@@ -149,13 +153,12 @@ def r2distance_2lines(x_start1,x_end1,x_start2,x_end2,en11,en12,en21,en22):
 
 #Determination of the right place of the transitions (x and y coordinates)
 #return "tran_param", which is a list of the initial and final energy and the band (first, second .... state of a certain spin and parity)
-def trans(lvl_list,onoff,arrow_angle,transition_space,fontsize,lvl_width,lvl_space,lvl_short,tran_width,fig,ax):
+def trans(lvl_list,onoff,arrow_angle,transition_space,fontsize,lvl_width,lvl_space,lvl_short,tran_width,fig,ax,shrink_factor):
     tran_param = []
     neg_shift,pos_shift = 0,0
     x_end_list = []
     
-    #shrinks the arrow, so there is no overlap between the starting and ending point and the levels
-    shrink_factor = 25
+
     
     ###################################################
     #start of the Iteration over all levels (inital states)
