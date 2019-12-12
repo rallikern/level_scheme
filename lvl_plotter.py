@@ -67,10 +67,10 @@ def plotter(lvl_list,onoff,name,onoff_pic,onoff_tick,fontsize):
     lvl_space = .75*lvl_width				#space between levels
     lvl_short = 0.0							#
     tran_width = 20							#width of the transitions
-    dist_2_axis = lvl_space + lvl_width		#space between level of the western most and the y-axis 
+    dist_2_axis = lvl_space + 0.5*lvl_width		#space between level of the western most and the y-axis 
     ylim_up = 100							#In addition with the highest energy = upper limit of the yaxis
     ylim_down= -150 						#lower limit of the yaxis
-    figsize = (9,4)							#absolute size of the plot
+    figsize = (4,4)							#absolute size of the plot
     shrink_factor = 25						#shrinks the arrow, so there is no overlap between the starting and ending point and the levels
     
     
@@ -364,9 +364,9 @@ def lvl_scheme(lvl_list,onoff,arrow_angle,transition_space,fontsize,lvl_width,lv
         else:
             shifty = xdata[1]+0.1*lvl_width
         #If the the spin is unknown, the parity is probably also unknown
-        try:
-        	if 'eV' in i.spin: pari = ''
-        except:
+        if isinstance(i.spin,str): 
+        	pari = ''
+        else:
             pari = '^'+parity(i.par)
         
         ax.text(shifty, i.en-50, r"$"+str(i.spin)+pari+indice+"$",size=fontsize)
