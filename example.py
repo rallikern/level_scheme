@@ -7,7 +7,7 @@ tran2_0 = 1178/5
 lvl0 = ls.Level(0,0,1,1)
 #first excited state 2+
 lvl1 = ls.Level(774,2,1,1)
-lvl1.add_decay(0,1)
+lvl1.add_decay(0,2,ind_energy=800)
 #second 2+
 lvl3 = ls.Level(1490,2,1,2)
 lvl3.add_decay(774,16/tran2_0)
@@ -27,6 +27,11 @@ lvl11.add_decay(1802,0.4/tran2_0)
 #lvl12 = ls.level(2500,3,-1,2)
 #lvl12.add_decay(1935,0.05/tran2_0)
 
-lvl_list = [lvl for lvl in ls.level.getinstances()]
+lvl_list = [lvl for lvl in ls.Level.getinstances()]
 
-ls.plotter(lvl_list,1,"./140nd_ls.pdf",True,True,14)
+###
+#default
+#plotter(lvl_list, name, transitions=True, save_pic=True, ticks=True, fontsize=14, transition_label=False):
+###
+
+ls.plotter(lvl_list, "./140nd_ls.pdf", transition_label=True)

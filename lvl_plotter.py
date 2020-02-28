@@ -40,12 +40,12 @@ class Level(object):
         self.decay = []
         self._instances.add(weakref.ref(self))
 
-    def add_decay(self, t_en, t_int):
+    def add_decay(self, t_en, t_int, ind_energy=0):
         '''
         adds decays to levels
         '''
         if t_en not in [self.decay[l][0] for l in range(len(self.decay))]:
-            self.decay.append([t_en, t_int])
+            self.decay.append([t_en, t_int, ind_energy])
 
     @classmethod
     def getinstances(cls):
@@ -58,7 +58,7 @@ class Level(object):
                 dead.add(ref)
         cls._instances -= dead
 
-def plotter(lvl_list, onoff, name, onoff_pic, onoff_tick, fontsize):
+def plotter(lvl_list, name, transitions=True, save_pic=True, ticks=True, fontsize=14, transition_label=False):
     '''
     default parameter
     change the parameter like you want
@@ -97,8 +97,8 @@ def plotter(lvl_list, onoff, name, onoff_pic, onoff_tick, fontsize):
     fig, axe = plt.subplots(figsize=figsize)
     parameter = [arrow_angle, transition_space, fontsize,
                  lvl_width, lvl_space, lvl_short, tran_width]
-    tranni = trans(lvl_list, onoff, *parameter, fig, axe, shrink_factor)
-    maxi = lvl_scheme(lvl_list, onoff, *parameter, *tranni)
+    tranni = trans(lvl_list, transitions, *parameter, fig, axe, shrink_factor, transition_label)
+    maxi = lvl_scheme(lvl_list, transitions, *parameter, *tranni)
     maxi[4].set_ylim(ylim_down, maxi[2]+ylim_up)
     maxi[4].set_xlim(maxi[0]-dist_2_axis, maxi[1]+dist_2_axis)
 
@@ -106,20 +106,20 @@ def plotter(lvl_list, onoff, name, onoff_pic, onoff_tick, fontsize):
     #Tick and label setup
     ###########
 
-    if onoff_tick:
+    if ticks:
         maxi[4].set_ylabel(r'Energy (keV)', size=fontsize)
-    maxi[4].tick_params(top=False, bottom=False, left=onoff_tick,
-                        right=False, labelleft=onoff_tick, labelbottom=False)
+    maxi[4].tick_params(top=False, bottom=False, left=ticks,
+                        right=False, labelleft=ticks, labelbottom=False)
     maxi[4].spines['top'].set_visible(False)
     maxi[4].spines['right'].set_visible(False)
     maxi[4].spines['bottom'].set_visible(False)
-    maxi[4].spines['left'].set_visible(onoff_tick)
+    maxi[4].spines['left'].set_visible(ticks)
 
     ###########
     #saving yes or no
     ###########
 
-    if onoff_pic:
+    if save_pic:
         maxi[3].savefig(name, bbox_inches="tight")
     else:
         print("sorry,no picture for you")
@@ -177,7 +177,7 @@ def r2distance_2lines(x_start1, x_end1, x_start2, x_end2, en11, en12, en21, en22
 
 
 def trans(lvl_list, onoff, arrow_angle, transition_space, fontsize,
-          lvl_width, lvl_space, lvl_short, tran_width, fig, axe, shrink_factor):
+          lvl_width, lvl_space, lvl_short, tran_width, fig, axe, shrink_factor, transition_label):
     '''
     Determination of the right place of the transitions (x and y coordinates)
     return "tran_param", which is a list of the initial and final energy and
@@ -256,9 +256,9 @@ def trans(lvl_list, onoff, arrow_angle, transition_space, fontsize,
                     shrink = shrink_factor / abs(i.en-j.en)
                     arrow_angle_temp = arrow_angle
 
-                    #If the flag onoff is "1",
+                    #If the flag onoff is True,
                     #than the transitions will be included in the level scheme
-                    if onoff == 1:
+                    if onoff:
 
                         #vertical arrows for transitions inside a band.
                         if i.num == j.num and i.par == j.par:
@@ -304,6 +304,17 @@ def trans(lvl_list, onoff, arrow_angle, transition_space, fontsize,
                         axe.annotate("", xy=(x_end, j.en), xytext=(x_start, i.en),
                                      arrowprops=dict(width=width, headwidth=headwidth,
                                                      facecolor='black', shrink=shrink))
+                        #######
+                        #labeling of the transitions
+                        #possible individual label i.decay[l][2]
+                        #######
+                        if i.decay[l][2]==0:
+                            t_label = str(int(i.en-j.en))
+                        else:
+                            t_label = str(i.decay[l][2])
+                        if transition_label:
+                            axe.text((x_end+x_start)/2, (i.en+j.en)/2, t_label, color='black', horizontalalignment='center',
+                                 verticalalignment='center', bbox=dict(color='white', alpha=1), rotation=90, fontsize=fontsize-2)
 
     return [tran_param, fig, axe]
 
