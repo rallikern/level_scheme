@@ -5,6 +5,7 @@ Ultimative Tool for plotting level schemes
 import weakref
 import numpy as np
 from numpy import random
+import operator
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
@@ -57,6 +58,7 @@ class Level(object):
             else:
                 dead.add(ref)
         cls._instances -= dead
+        cls._instances.clear()
 
 def plotter(lvl_list, name, transitions=True, save_pic=True, ticks=True, fontsize=14, transition_label=False):
     '''
@@ -68,7 +70,7 @@ def plotter(lvl_list, name, transitions=True, save_pic=True, ticks=True, fontsiz
     #width of a level
     lvl_width = 1
     #default space between decays from one level
-    transition_space = 0.5 *lvl_width
+    transition_space = 0.45*lvl_width
     #Fontsize
     fontsize = fontsize
     #space between levels
@@ -83,7 +85,7 @@ def plotter(lvl_list, name, transitions=True, save_pic=True, ticks=True, fontsiz
     #lower limit of the yaxis
     ylim_down = -150
     #absolute size of the plot
-    figsize = (6, 4)
+    figsize = (10, 4)
     #shrinks the arrow, so there is no overlap between the starting and ending point and the levels
     shrink_factor = 25
 
@@ -94,6 +96,7 @@ def plotter(lvl_list, name, transitions=True, save_pic=True, ticks=True, fontsiz
     #Plot statrts
     ######################################
 
+    lvl_list = test = sorted(lvl_list, key=lambda level: level.en)
     fig, axe = plt.subplots(figsize=figsize)
     parameter = [arrow_angle, transition_space, fontsize,
                  lvl_width, lvl_space, lvl_short, tran_width]
@@ -192,9 +195,11 @@ def trans(lvl_list, onoff, arrow_angle, transition_space, fontsize,
     #start of the Iteration over all levels (inital states)
     ###################################################
 
+
     for i in lvl_list:
 
         k = 0
+        print(i.en)
 
         #################
         #Every Transition gets a default location, suited to the energy,
@@ -215,7 +220,7 @@ def trans(lvl_list, onoff, arrow_angle, transition_space, fontsize,
 
         for j in lvl_list:
 
-        #number of decays
+            #number of decays
             num_tran = len(i.decay)
 
             for l in range(num_tran):
@@ -282,12 +287,13 @@ def trans(lvl_list, onoff, arrow_angle, transition_space, fontsize,
 
                                 #the x coordinates will be changed until
                                 #the distance condition is finally fullfilled
-                                while dist < 0.49*transition_space and (i.en >= p[3] or j.en <= p[3]):
+                                while dist < 0.45*transition_space and (i.en >= p[3] or j.en <= p[3]):
                                     x_end += (sign*0.01*transition_space)
                                     x_start += (sign*0.01*transition_space)
                                     dist = r2distance_2lines(x_start, x_end,
                                                              p[0], p[1], i.en, j.en, p[2], p[3])[0]
 
+                        #
                         #If the starting point of the arrow is shifted away from the level line,
                         #it is shifted by the length of the level line back
                         if x_start > xdata[1]:
@@ -313,8 +319,10 @@ def trans(lvl_list, onoff, arrow_angle, transition_space, fontsize,
                         else:
                             t_label = str(i.decay[l][2])
                         if transition_label:
-                            axe.text((x_end+x_start)/2, (i.en+j.en)/2, t_label, color='black', horizontalalignment='center',
-                                 verticalalignment='center', bbox=dict(color='white', alpha=1), rotation=90, fontsize=fontsize-2)
+                            axe.text((x_end+x_start)/2, (i.en+j.en)/2, t_label, color='black',
+                                     horizontalalignment='center', verticalalignment='center',
+                                     bbox=dict(boxstyle='round, pad=0.0', color='white', alpha=1), rotation=90,
+                                     fontsize=fontsize-2)
 
     return [tran_param, fig, axe]
 
